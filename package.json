@@ -4,17 +4,24 @@
   "description": "Debussy REST API",
   "main": "index.js",
   "scripts": {
-	"prestart": "npm install",
-	"start": "node index.js"
+    "prestart": "npm install",
+    "dev": "nodemon --exec babel-node index.js"
   },
   "keywords": [
     "swagger"
   ],
-  "license": "Unlicense",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
+    "mongoose": "^5.9.10",
+    "nodemon": "^2.0.3",
     "oas3-tools": "^2.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.5"
   }
 }
