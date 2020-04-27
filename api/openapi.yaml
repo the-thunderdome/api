@@ -15,8 +15,7 @@ paths:
   /games:
     get:
       tags:
-      - humans
-      - admins
+      - Games
       summary: get games index
       description: |
         List all teams
@@ -38,11 +37,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/inline_response_4XX'
-      x-swagger-router-controller: Humans
+      x-swagger-router-controller: Games
   /game/{gameId}:
     get:
       tags:
-      - humans
+      - Games
       summary: get game
       description: |
         Get a game by its uuid
@@ -70,11 +69,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/inline_response_4XX'
-      x-swagger-router-controller: Humans
+      x-swagger-router-controller: Games
   /team/{teamId}:
     get:
       tags:
-      - humans
+      - Teams
       summary: get team
       description: |
         Get a team by their uuid
@@ -102,11 +101,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/inline_response_4XX'
-      x-swagger-router-controller: Humans
+      x-swagger-router-controller: Teams
   /teams:
     get:
       tags:
-      - humans
+      - Teams
       summary: get all teams
       description: |
         Get all teams
@@ -128,7 +127,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/inline_response_4XX'
-      x-swagger-router-controller: Humans
+      x-swagger-router-controller: Teams
 components:
   schemas:
     Team:
