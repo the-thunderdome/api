@@ -1,102 +1,145 @@
 openapi: 3.0.0
 info:
-  title: Simple Inventory API
-  description: This is a simple API
+  title: Debussy API
+  description: Debussy REST API
   contact:
-    email: you@your-company.com
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    email: daniel.seehausen@gmail.com
   version: 1.0.0
 servers:
-- url: https://virtserver.swaggerhub.com/DanielSeehausen/choux-test/1.0.0
-  description: SwaggerHub API Auto Mocking
+- url: https://virtserver.swaggerhub.com/DanielSeehausen/debussy/1.0.0
+  description: OA3/SwaggerHub API Auto Mocking for Debussy
 tags:
+- name: humans
+  description: Operations meant for humans
 - name: admins
   description: Secured Admin-only calls
-- name: developers
-  description: Operations available to regular developers
+- name: AIs
+  description: Operations meant for the bots
 paths:
-  /inventory:
+  /games:
     get:
       tags:
-      - developers
-      summary: searches inventory
+      - humans
+      summary: get games index
       description: |
-        By passing in the appropriate options, you can search for
-        available inventory in the system
-      operationId: searchInventory
-      parameters:
-      - name: searchString
-        in: query
-        description: pass an optional search string for looking up inventory
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: skip
-        in: query
-        description: number of records to skip for pagination
-        required: false
-        style: form
-        explode: true
-        schema:
-          minimum: 0
-          type: integer
-          format: int32
-      - name: limit
-        in: query
-        description: maximum number of records to return
-        required: false
-        style: form
-        explode: true
-        schema:
-          maximum: 50.0
-          minimum: 0
-          type: integer
-          format: int32
+        List all teams
+      operationId: listGames
       responses:
         "200":
-          description: search results matching criteria
+          description: returns an array of small game objects
           content:
             application/json:
               schema:
+                uniqueItems: true
                 type: array
                 items:
-                  $ref: '#/components/schemas/InventoryItem'
+                  $ref: '#/components/schemas/GameCore'
                 x-content-type: application/json
-        "400":
-          description: bad input parameter
-      x-swagger-router-controller: Developers
-    post:
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+  /game/{gameId}:
+    get:
       tags:
-      - admins
-      summary: Inventory stuff
-      description: Adds an item to the system
-      operationId: addInventory
-      requestBody:
-        description: Inventory item to add
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InventoryItem'
+      - humans
+      summary: get game
+      description: |
+        Get a game by its uuid
+      operationId: getGame
+      parameters:
+      - name: gameId
+        in: path
+        description: uuid of a game
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
       responses:
-        "201":
-          description: item created
-        "400":
-          description: invalid input, object invalid
-        "409":
-          description: an existing item already exists
-      x-swagger-router-controller: Admins
+        "200":
+          description: returns a game object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+  /team/{teamId}:
+    get:
+      tags:
+      - humans
+      summary: get team
+      description: |
+        Get a team by their uuid
+      operationId: getTeam
+      parameters:
+      - name: teamId
+        in: path
+        description: uuid of a team
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: returns a team object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+  /teams:
+    get:
+      tags:
+      - humans
+      summary: get all teams
+      description: |
+        Get all teams
+      operationId: listTeams
+      responses:
+        "200":
+          description: returns an array of team objects
+          content:
+            application/json:
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+                x-content-type: application/json
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
 components:
   schemas:
-    InventoryItem:
+    Team:
       required:
+      - email
       - id
-      - manufacturer
       - name
-      - releaseDate
+      - organization
       type: object
       properties:
         id:
@@ -104,37 +147,279 @@ components:
           format: uuid
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
         name:
+          $ref: '#/components/schemas/TeamName'
+        organization:
+          maxLength: 30
+          minLength: 1
           type: string
-          example: Widget Adapter
-        releaseDate:
+        email:
           type: string
-          format: date-time
-        manufacturer:
-          $ref: '#/components/schemas/Manufacturer'
+          format: email
+        description:
+          maxLength: 30
+          type: string
       example:
-        releaseDate: 2000-01-23T04:56:07.000+00:00
-        name: Widget Adapter
+        organization: organization
+        name: Team Chux
+        description: description
         id: d290f1ee-6c54-4b01-90e6-d701748f0851
-        manufacturer:
-          phone: 408-867-5309
-          name: ACME Corporation
-          homePage: https://www.acme-corp.com
-    Manufacturer:
+        email: ""
+    TeamName:
+      maxLength: 20
+      minLength: 1
+      type: string
+      example: Team Chux
+    GameCore:
       required:
-      - name
+      - id
+      - participants
+      - status
       type: object
       properties:
-        name:
+        id:
           type: string
-          example: ACME Corporation
-        homePage:
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        participants:
+          maxItems: 2
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+        startedAt:
+          type: integer
+          format: int64
+          nullable: true
+        endedAt:
+          type: integer
+          format: int64
+          nullable: true
+        status:
           type: string
-          format: url
-          example: https://www.acme-corp.com
-        phone:
-          type: string
-          example: 408-867-5309
       example:
-        phone: 408-867-5309
-        name: ACME Corporation
-        homePage: https://www.acme-corp.com
+        endedAt: 6
+        startedAt: 0
+        id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        participants:
+        - organization: organization
+          name: Team Chux
+          description: description
+          id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          email: ""
+        - organization: organization
+          name: Team Chux
+          description: description
+          id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          email: ""
+        status: status
+    Game:
+      required:
+      - id
+      - participants
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/GameState'
+      example:
+        state:
+          graph:
+            nodes:
+            - owner: Team Chux
+              size: 6
+              edges:
+              - id: 2
+              - id: 2
+              maxSize: 1
+              location:
+                x: 5
+                y: 5
+              id: 0
+            - owner: Team Chux
+              size: 6
+              edges:
+              - id: 2
+              - id: 2
+              maxSize: 1
+              location:
+                x: 5
+                y: 5
+              id: 0
+      allOf:
+      - $ref: '#/components/schemas/GameCore'
+      - type: object
+    GameState:
+      required:
+      - Graph
+      type: object
+      properties:
+        graph:
+          $ref: '#/components/schemas/Graph'
+      nullable: true
+      example:
+        graph:
+          nodes:
+          - owner: Team Chux
+            size: 6
+            edges:
+            - id: 2
+            - id: 2
+            maxSize: 1
+            location:
+              x: 5
+              y: 5
+            id: 0
+          - owner: Team Chux
+            size: 6
+            edges:
+            - id: 2
+            - id: 2
+            maxSize: 1
+            location:
+              x: 5
+              y: 5
+            id: 0
+    Graph:
+      required:
+      - nodes
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+      example:
+        nodes:
+        - owner: Team Chux
+          size: 6
+          edges:
+          - id: 2
+          - id: 2
+          maxSize: 1
+          location:
+            x: 5
+            y: 5
+          id: 0
+        - owner: Team Chux
+          size: 6
+          edges:
+          - id: 2
+          - id: 2
+          maxSize: 1
+          location:
+            x: 5
+            y: 5
+          id: 0
+    Node:
+      required:
+      - edges
+      - id
+      - location
+      - maxSize
+      - owner
+      - size
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/NodeId'
+        owner:
+          $ref: '#/components/schemas/TeamName'
+        size:
+          type: integer
+        maxSize:
+          type: integer
+        location:
+          $ref: '#/components/schemas/NodeLocation'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Edge'
+      example:
+        owner: Team Chux
+        size: 6
+        edges:
+        - id: 2
+        - id: 2
+        maxSize: 1
+        location:
+          x: 5
+          y: 5
+        id: 0
+    NodeId:
+      type: integer
+    Edge:
+      required:
+      - id
+      - sinkId
+      - sourceId
+      type: object
+      properties:
+        id:
+          type: integer
+        sourceId:
+          $ref: '#/components/schemas/NodeId'
+        targetId:
+          $ref: '#/components/schemas/NodeId'
+      example:
+        id: 2
+    NodeLocation:
+      required:
+      - x
+      - "y"
+      type: object
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+      example:
+        x: 5
+        y: 5
+    inline_response_4XX:
+      required:
+      - errMsg
+      type: object
+      properties:
+        errMsg:
+          type: string
+  responses:
+    GamesResponse:
+      description: returns an array of small game objects
+      content:
+        application/json:
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              $ref: '#/components/schemas/GameCore'
+    TeamsResponse:
+      description: returns an array of team objects
+      content:
+        application/json:
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              $ref: '#/components/schemas/Team'
+    GameResponse:
+      description: returns a game object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Game'
+    TeamResponse:
+      description: returns a team object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Team'
+    ErrorResponse:
+      description: see errMsg
+      content:
+        application/json:
+          schema:
+            required:
+            - errMsg
+            type: object
+            properties:
+              errMsg:
+                type: string

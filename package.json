@@ -1,7 +1,7 @@
 {
-  "name": "simple-inventory-api",
+  "name": "debussy-api",
   "version": "1.0.0",
-  "description": "This is a simple API",
+  "description": "Debussy REST API",
   "main": "index.js",
   "scripts": {
 	"prestart": "npm install",
