@@ -1,0 +1,425 @@
+openapi: 3.0.0
+info:
+  title: Debussy API
+  description: Debussy REST API
+  contact:
+    email: daniel.seehausen@gmail.com
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/DanielSeehausen/debussy/1.0.0
+  description: OA3/SwaggerHub API Auto Mocking for Debussy
+tags:
+- name: humans
+  description: Operations meant for humans
+- name: admins
+  description: Secured Admin-only calls
+- name: AIs
+  description: Operations meant for the bots
+paths:
+  /games:
+    get:
+      tags:
+      - humans
+      summary: get games index
+      description: |
+        List all teams
+      operationId: listGames
+      responses:
+        "200":
+          description: returns an array of small game objects
+          content:
+            application/json:
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameCore'
+                x-content-type: application/json
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+  /game/{gameId}:
+    get:
+      tags:
+      - humans
+      summary: get game
+      description: |
+        Get a game by its uuid
+      operationId: getGame
+      parameters:
+      - name: gameId
+        in: path
+        description: uuid of a game
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: returns a game object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+  /team/{teamId}:
+    get:
+      tags:
+      - humans
+      summary: get team
+      description: |
+        Get a team by their uuid
+      operationId: getTeam
+      parameters:
+      - name: teamId
+        in: path
+        description: uuid of a team
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: returns a team object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+  /teams:
+    get:
+      tags:
+      - humans
+      summary: get all teams
+      description: |
+        Get all teams
+      operationId: listTeams
+      responses:
+        "200":
+          description: returns an array of team objects
+          content:
+            application/json:
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+                x-content-type: application/json
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Humans
+components:
+  schemas:
+    Team:
+      required:
+      - email
+      - id
+      - name
+      - organization
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          $ref: '#/components/schemas/TeamName'
+        organization:
+          maxLength: 30
+          minLength: 1
+          type: string
+        email:
+          type: string
+          format: email
+        description:
+          maxLength: 30
+          type: string
+      example:
+        organization: organization
+        name: Team Chux
+        description: description
+        id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        email: ""
+    TeamName:
+      maxLength: 20
+      minLength: 1
+      type: string
+      example: Team Chux
+    GameCore:
+      required:
+      - id
+      - participants
+      - status
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        participants:
+          maxItems: 2
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+        startedAt:
+          type: integer
+          format: int64
+          nullable: true
+        endedAt:
+          type: integer
+          format: int64
+          nullable: true
+        status:
+          type: string
+      example:
+        endedAt: 6
+        startedAt: 0
+        id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        participants:
+        - organization: organization
+          name: Team Chux
+          description: description
+          id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          email: ""
+        - organization: organization
+          name: Team Chux
+          description: description
+          id: d290f1ee-6c54-4b01-90e6-d701748f0851
+          email: ""
+        status: status
+    Game:
+      required:
+      - id
+      - participants
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/GameState'
+      example:
+        state:
+          graph:
+            nodes:
+            - owner: Team Chux
+              size: 6
+              edges:
+              - id: 2
+              - id: 2
+              maxSize: 1
+              location:
+                x: 5
+                y: 5
+              id: 0
+            - owner: Team Chux
+              size: 6
+              edges:
+              - id: 2
+              - id: 2
+              maxSize: 1
+              location:
+                x: 5
+                y: 5
+              id: 0
+      allOf:
+      - $ref: '#/components/schemas/GameCore'
+      - type: object
+    GameState:
+      required:
+      - Graph
+      type: object
+      properties:
+        graph:
+          $ref: '#/components/schemas/Graph'
+      nullable: true
+      example:
+        graph:
+          nodes:
+          - owner: Team Chux
+            size: 6
+            edges:
+            - id: 2
+            - id: 2
+            maxSize: 1
+            location:
+              x: 5
+              y: 5
+            id: 0
+          - owner: Team Chux
+            size: 6
+            edges:
+            - id: 2
+            - id: 2
+            maxSize: 1
+            location:
+              x: 5
+              y: 5
+            id: 0
+    Graph:
+      required:
+      - nodes
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+      example:
+        nodes:
+        - owner: Team Chux
+          size: 6
+          edges:
+          - id: 2
+          - id: 2
+          maxSize: 1
+          location:
+            x: 5
+            y: 5
+          id: 0
+        - owner: Team Chux
+          size: 6
+          edges:
+          - id: 2
+          - id: 2
+          maxSize: 1
+          location:
+            x: 5
+            y: 5
+          id: 0
+    Node:
+      required:
+      - edges
+      - id
+      - location
+      - maxSize
+      - owner
+      - size
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/NodeId'
+        owner:
+          $ref: '#/components/schemas/TeamName'
+        size:
+          type: integer
+        maxSize:
+          type: integer
+        location:
+          $ref: '#/components/schemas/NodeLocation'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Edge'
+      example:
+        owner: Team Chux
+        size: 6
+        edges:
+        - id: 2
+        - id: 2
+        maxSize: 1
+        location:
+          x: 5
+          y: 5
+        id: 0
+    NodeId:
+      type: integer
+    Edge:
+      required:
+      - id
+      - sinkId
+      - sourceId
+      type: object
+      properties:
+        id:
+          type: integer
+        sourceId:
+          $ref: '#/components/schemas/NodeId'
+        targetId:
+          $ref: '#/components/schemas/NodeId'
+      example:
+        id: 2
+    NodeLocation:
+      required:
+      - x
+      - "y"
+      type: object
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+      example:
+        x: 5
+        y: 5
+    inline_response_4XX:
+      required:
+      - errMsg
+      type: object
+      properties:
+        errMsg:
+          type: string
+  responses:
+    GamesResponse:
+      description: returns an array of small game objects
+      content:
+        application/json:
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              $ref: '#/components/schemas/GameCore'
+    TeamsResponse:
+      description: returns an array of team objects
+      content:
+        application/json:
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              $ref: '#/components/schemas/Team'
+    GameResponse:
+      description: returns a game object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Game'
+    TeamResponse:
+      description: returns a team object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Team'
+    ErrorResponse:
+      description: see errMsg
+      content:
+        application/json:
+          schema:
+            required:
+            - errMsg
+            type: object
+            properties:
+              errMsg:
+                type: string
