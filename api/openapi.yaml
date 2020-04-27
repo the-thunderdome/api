@@ -72,6 +72,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/inline_response_4XX'
       x-swagger-router-controller: Games
+  /game/{gameId}/team/{teamId}/action:
+    get:
+      tags:
+      - Games
+      summary: execute action
+      description: |
+        Execute a game action
+      operationId: gameTeamAction
+      parameters:
+      - name: gameId
+        in: path
+        description: uuid of a game
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: teamId
+        in: path
+        description: uuid of a team
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: the game action was accepted
+        "4XX":
+          description: see errMsg
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_4XX'
+      x-swagger-router-controller: Games
   /team/{teamId}:
     get:
       tags:

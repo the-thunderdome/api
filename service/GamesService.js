@@ -2,6 +2,21 @@
 
 
 /**
+ * execute action
+ * Execute a game action 
+ *
+ * gameId UUID uuid of a game
+ * teamId UUID uuid of a team
+ * no response value expected for this operation
+ **/
+exports.gameTeamAction = function(gameId,teamId) {
+  return new Promise(function(resolve, reject) {
+    resolve();
+  });
+}
+
+
+/**
  * get game
  * Get a game by its uuid 
  *
