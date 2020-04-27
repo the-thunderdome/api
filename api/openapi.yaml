@@ -9,12 +9,10 @@ servers:
 - url: https://virtserver.swaggerhub.com/DanielSeehausen/debussy/1.0.0
   description: OA3/SwaggerHub API Auto Mocking for Debussy
 tags:
-- name: humans
+- name: Games
   description: Operations meant for humans
-- name: admins
+- name: Teams
   description: Secured Admin-only calls
-- name: AIs
-  description: Operations meant for the bots
 paths:
   /games:
     get:
