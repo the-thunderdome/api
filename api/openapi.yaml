@@ -10,9 +10,7 @@ servers:
   description: OA3/SwaggerHub API Auto Mocking for Debussy
 tags:
 - name: Games
-  description: Operations meant for humans
 - name: Teams
-  description: Secured Admin-only calls
 paths:
   /games:
     get:
